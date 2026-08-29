@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chess Royale — Daily</title>
+<link rel="stylesheet" href="/public/app.css">
+</head>
+<body>
+<main class="stage">
+  <div class="topline">
+    <a class="back" href="/" aria-label="Back to the menu">←</a>
+    <h1>Daily <span id="c-day"></span></h1>
+  </div>
+
+  <div class="chips">
+    <span class="chip">Score <b id="c-score">0</b>/<b id="c-par">?</b></span>
+    <span class="chip" id="c-ring">Ring falls</span>
+    <span class="chip">Moves <b class="pips" id="c-pips">●●</b></span>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <p class="say" id="say">Loading today's board.</p>
+
+  <div class="tray">
+    <div><span>Collected</span><span class="won you" id="t-got"></span></div>
+  </div>
+
+  <div class="acts">
+    <button class="btn ghost" id="end">Skip round</button>
+    <button class="btn ghost narrow" id="undo">Undo</button>
+  </div>
+
+  <div class="over" id="over" hidden>
+    <h2 id="over-h"></h2>
+    <p id="over-p"></p>
+    <pre class="share" id="share"></pre>
+    <button class="btn primary" id="copy">Copy result</button>
+    <p class="fine" id="next"></p>
+  </div>
+</main>
+<script type="module" src="/src/game/daily.view.mjs"></script>
+</body>
+</html>

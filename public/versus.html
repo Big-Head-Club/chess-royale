@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chess Royale — Play a friend</title>
+<link rel="stylesheet" href="/public/app.css">
+</head>
+<body>
+<main class="stage">
+  <div class="topline">
+    <a class="back" href="/" aria-label="Back to the menu">←</a>
+    <h1>Play a friend</h1>
+  </div>
+
+  <div class="chips" id="chips" hidden>
+    <span class="chip">Round <b id="c-round">1</b>/11</span>
+    <span class="chip" id="c-ring">Ring falls</span>
+    <span class="chip">Moves <b class="pips" id="c-pips">●●●</b></span>
+  </div>
+
+  <div class="lobby" id="lobby">
+    <p class="lede">One of you makes a room and sends the link. The other opens
+       it. That is the whole setup.</p>
+    <button class="btn primary" id="make">Make a room</button>
+    <div class="joinrow">
+      <input id="code" placeholder="Room code" maxlength="4" autocomplete="off"
+             autocapitalize="characters" spellcheck="false">
+      <button class="btn ghost narrow" id="join">Join</button>
+    </div>
+    <p class="say" id="lobby-say"></p>
+  </div>
+
+  <div class="board" id="board" hidden></div>
+
+  <p class="say" id="say"></p>
+
+  <div class="tray" id="tray" hidden>
+    <div><span>Yours</span><span class="won you" id="t-you"></span></div>
+    <div><span>Theirs</span><span class="won foe" id="t-foe"></span></div>
+  </div>
+
+  <div class="acts" id="acts" hidden>
+    <button class="btn ghost" id="end">Skip turn</button>
+    <button class="btn ghost narrow" id="undo">Undo</button>
+  </div>
+
+  <div class="over" id="over" hidden>
+    <h2 id="over-h"></h2>
+    <p id="over-p"></p>
+    <button class="btn primary" id="again">Play again</button>
+  </div>
+</main>
+<script type="module" src="/src/game/versus.view.mjs"></script>
+</body>
+</html>

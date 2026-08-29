@@ -31,6 +31,7 @@ export const PRESET = {
   hearts: false,       // one marked runner per seat; lose it and you lose
   actions: 3,          // moves a seat makes per turn — see README, this is the
                        // number that decides whether the game exists at all
+  solo: false,         // one seat, no opponent: the daily puzzle
   layout: null,        // defaults to LAYOUT_BY_SIZE[size]
   collapses: null,     // defaults to SCHEDULE_BY_SIZE[size]
   extraRounds: 4,      // rounds of play after the final collapse
@@ -57,7 +58,7 @@ export function initial(cfg = config()) {
   const mid = (n - 1) / 2;
   for (let x = 0; x < n; x += cfg.spacing) {
     board[idx(cfg, x, 0)] = { t: 'r', c: 0, k: cfg.hearts && x === mid };
-    board[idx(cfg, x, n - 1)] = { t: 'r', c: 1, k: cfg.hearts && x === mid };
+    if (!cfg.solo) board[idx(cfg, x, n - 1)] = { t: 'r', c: 1, k: cfg.hearts && x === mid };
   }
   return { cfg, board, chests, lo: 0, hi: n - 1, turn: 0, round: 1, acted: 0,
            over: null, killed: { collapse: 0, capture: 0 } };
@@ -152,6 +153,15 @@ function collapse(s) {
 }
 
 function settle(s) {
+  if (s.cfg.solo) {
+    // The puzzle is over when there is nothing left to collect or nobody left
+    // to collect it. There is no opponent to lose to.
+    const runners = s.board.some((p) => p && p.t === 'r');
+    const chests = s.chests.some(Boolean);
+    if (!runners || !chests || s.round > s.cfg.lastRound)
+      s.over = { winner: 0, reason: !chests ? 'cleared' : !runners ? 'stranded' : 'time' };
+    return;
+  }
   if (s.cfg.hearts) {
     const ha = hasHeart(s, 0), hb = hasHeart(s, 1);
     if (!ha || !hb) {
@@ -172,6 +182,12 @@ function settle(s) {
 function endTurn(s) {
   if (++s.acted < s.cfg.actions) { settle(s); return; }
   s.acted = 0;
+  if (s.cfg.solo) {
+    if (s.cfg.collapses.includes(s.round)) collapse(s);
+    s.round += 1;
+    settle(s);
+    return;
+  }
   if (s.turn === 1) {
     if (s.cfg.collapses.includes(s.round)) collapse(s);
     s.round += 1;

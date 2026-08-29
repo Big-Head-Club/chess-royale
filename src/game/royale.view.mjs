@@ -1,11 +1,7 @@
-import {
-  config, initial, moves, apply, material, roundsToCollapse, ringOf, lifespan,
-  idx, ux, uy, VALUE,
-} from './royale.rules.mjs';
+import { config, initial, moves, apply, material, roundsToCollapse } from './royale.rules.mjs';
 import { competent, mulberry32, TUNED } from './royale.ai.mjs';
+import { renderBoard, ringChip, pips, GLYPH, NAME } from './board.view.mjs';
 
-const GLYPH = { r: '♟', N: '♞', B: '♝', R: '♜', Q: '♛' };
-const NAME = { r: 'runner', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen' };
 const YOU = 0, FOE = 1;
 
 const el = (id) => document.getElementById(id);
@@ -29,76 +25,14 @@ function reset() {
 
 // ---- rendering -------------------------------------------------------------
 
-const cells = [];
-for (let i = 0; i < 81; i++) {
-  const b = document.createElement('button');
-  b.className = 'cell';
-  b.type = 'button';
-  cells.push(b);
-}
-
 function draw() {
+  renderBoard(boardEl, state, { seat: YOU, sel, last: lastMove });
+
   const s = state;
-  const legal = sel === null ? [] : moves(s, YOU).filter((m) => m.from === sel);
-  const dests = new Map(legal.map((m) => [m.to, !!s.board[m.to]]));
-  const ringSoon = roundsToCollapse(s) <= 1;
-
-  boardEl.replaceChildren();
-  // Seat 0 sits at the bottom, so rows are drawn from the far rank down.
-  for (let y = cfg.size - 1; y >= 0; y--) {
-    for (let x = 0; x < cfg.size; x++) {
-      const i = idx(cfg, x, y);
-      const c = cells[i];
-      c.className = 'cell' + ((x + y) % 2 ? ' alt' : '');
-      c.replaceChildren();
-      c.disabled = false;
-      c.setAttribute('aria-label', `${String.fromCharCode(97 + x)}${y + 1}`);
-
-      const dead = x < s.lo || x > s.hi || y < s.lo || y > s.hi;
-      if (dead) { c.classList.add('dead'); c.disabled = true; boardEl.append(c); continue; }
-
-      if (ringSoon && ringOf(s, i) === 0) c.classList.add('doomed');
-      if (lastMove && (i === lastMove.from || i === lastMove.to)) c.classList.add('last');
-      if (i === sel) c.classList.add('sel');
-
-      const chest = s.chests[i];
-      if (chest) {
-        const d = document.createElement('span');
-        d.className = 'chest' + (lifespan(s, ringOf(s, i)) <= 1 ? ' expiring' : '');
-        d.textContent = GLYPH[chest];
-        c.append(d);
-      }
-
-      const p = s.board[i];
-      if (p) {
-        const g = document.createElement('span');
-        g.className = 'piece ' + (p.c === YOU ? 'you' : 'foe');
-        g.textContent = GLYPH[p.t];
-        c.append(g);
-      }
-
-      if (dests.has(i)) {
-        const d = document.createElement('span');
-        d.className = 'dot' + (dests.get(i) ? ' take' : '');
-        c.append(d);
-      }
-      boardEl.append(c);
-    }
-  }
-
   el('c-round').textContent = Math.min(s.round, cfg.lastRound);
-  const rc = roundsToCollapse(s);
-  const ring = el('c-ring');
-  ring.classList.toggle('hot', rc <= 1);
-  // Name the round it falls on, not a countdown — a countdown is one word away
-  // from meaning either "after this round" or "after three more".
-  ring.innerHTML = rc === Infinity ? 'Ring holds'
-    : rc === 0 ? 'Ring falls <b>this round</b>'
-    : `Ring falls <b>round ${s.round + rc}</b>`;
-
+  ringChip(el('c-ring'), s);
   const left = s.turn === YOU ? cfg.actions - s.acted : 0;
-  el('c-pips').innerHTML =
-    '●'.repeat(left) + `<span class="spent">${'●'.repeat(cfg.actions - left)}</span>`;
+  pips(el('c-pips'), left, cfg.actions);
 
   for (const seat of [YOU, FOE]) {
     const won = s.board.filter((p) => p && p.c === seat && p.t !== 'r').map((p) => GLYPH[p.t]);
@@ -209,7 +143,7 @@ function finish() {
 
 boardEl.addEventListener('click', (e) => {
   const c = e.target.closest('.cell');
-  if (c) tap(cells.indexOf(c));
+  if (c) tap(Number(c.dataset.i));
 });
 el('undo').addEventListener('click', () => {
   if (!history.length || thinking) return;

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chess Royale</title>
+<link rel="stylesheet" href="/public/app.css">
+</head>
+<body>
+
+<main class="stage">
+  <h1>Chess Royale</h1>
+
+  <div class="chips">
+    <span class="chip">Round <b id="c-round">1</b>/11</span>
+    <span class="chip" id="c-ring">Ring falls in <b>4</b></span>
+    <span class="chip">Moves <b class="pips" id="c-pips">●●●</b></span>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <p class="say" id="say"></p>
+
+  <div class="tray">
+    <div><span>Yours</span><span class="won you" id="t-you"></span></div>
+    <div><span>Theirs</span><span class="won foe" id="t-foe"></span></div>
+  </div>
+
+  <div class="acts">
+    <button class="btn primary" id="end">End turn</button>
+    <button class="btn ghost narrow" id="undo">Undo</button>
+  </div>
+
+  <div class="over" id="over" hidden>
+    <h2 id="over-h"></h2>
+    <p id="over-p"></p>
+    <button class="btn primary" id="again">Play again</button>
+  </div>
+</main>
+
+<aside class="rail">
+  <div>
+    <h3>How it goes</h3>
+    <p>You get three moves a turn. Runners move up to two squares forward or
+       sideways, never backward, and take one square forward or diagonally
+       forward.</p>
+  </div>
+  <div>
+    <h3>Chests</h3>
+    <p>Step a runner onto a chest and it becomes that piece. Every chest is
+       face-up from the first move. A chest on a ring that is about to fall goes
+       down with it.</p>
+    <ul>
+      <li><span class="pip">♜</span><span>Rook. The best prize, and both fall at the end of round 7.</span></li>
+      <li><span class="pip">♞</span><span>Knight. Stays to the end.</span></li>
+      <li><span class="pip">♝</span><span>Bishop. Cheap, close, safe.</span></li>
+    </ul>
+  </div>
+  <div>
+    <h3>The board falls</h3>
+    <p>The outer ring is deleted at the end of rounds 4 and 7. Anything standing
+       on it is gone. Take everything to win, or hold the most when round 11
+       ends.</p>
+  </div>
+</aside>
+
+<script type="module" src="/src/game/royale.view.mjs"></script>
+</body>
+</html>

@@ -4,66 +4,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Chess Royale</title>
+<meta name="description" content="Chess on a board that falls away underneath you. Runners cross an expiring board to reach chests that turn them into real pieces.">
 <link rel="stylesheet" href="/public/app.css">
 </head>
 <body>
-
-<main class="stage">
+<main class="stage menu">
   <h1>Chess Royale</h1>
+  <p class="lede">Chess on a board that falls away underneath you. Runners cross
+     an expiring board to reach chests that turn them into real pieces. No king,
+     no check.</p>
 
-  <div class="chips">
-    <span class="chip">Round <b id="c-round">1</b>/11</span>
-    <span class="chip" id="c-ring">Ring falls in <b>4</b></span>
-    <span class="chip">Moves <b class="pips" id="c-pips">●●●</b></span>
-  </div>
+  <nav class="modes">
+    <a class="mode" href="/daily">
+      <b>Today's puzzle</b>
+      <span>Four runners, seven chests, one attempt. You cannot have them all.</span>
+    </a>
+    <a class="mode" href="/versus">
+      <b>Play a friend</b>
+      <span>Make a room and send the link. Two seats, three moves a turn.</span>
+    </a>
+    <a class="mode" href="/bot">
+      <b>Play the machine</b>
+      <span>The same game against the bot the balance sims were built on.</span>
+    </a>
+  </nav>
 
-  <div class="board" id="board"></div>
-
-  <p class="say" id="say"></p>
-
-  <div class="tray">
-    <div><span>Yours</span><span class="won you" id="t-you"></span></div>
-    <div><span>Theirs</span><span class="won foe" id="t-foe"></span></div>
-  </div>
-
-  <div class="acts">
-    <button class="btn primary" id="end">End turn</button>
-    <button class="btn ghost narrow" id="undo">Undo</button>
-  </div>
-
-  <div class="over" id="over" hidden>
-    <h2 id="over-h"></h2>
-    <p id="over-p"></p>
-    <button class="btn primary" id="again">Play again</button>
-  </div>
+  <p class="fine">Three moves a turn. The outer ring is deleted on a published
+     schedule and anything standing on it is gone. Take everything to win, or
+     hold the most when the clock runs out.</p>
 </main>
-
-<aside class="rail">
-  <div>
-    <h3>How it goes</h3>
-    <p>You get three moves a turn. Runners move up to two squares forward or
-       sideways, never backward, and take one square forward or diagonally
-       forward.</p>
-  </div>
-  <div>
-    <h3>Chests</h3>
-    <p>Step a runner onto a chest and it becomes that piece. Every chest is
-       face-up from the first move. A chest on a ring that is about to fall goes
-       down with it.</p>
-    <ul>
-      <li><span class="pip">♜</span><span>Rook. The best prize, and both fall at the end of round 7.</span></li>
-      <li><span class="pip">♞</span><span>Knight. Stays to the end.</span></li>
-      <li><span class="pip">♝</span><span>Bishop. Cheap, close, safe.</span></li>
-    </ul>
-  </div>
-  <div>
-    <h3>The board falls</h3>
-    <p>The outer ring is deleted at the end of rounds 4 and 7. Anything standing
-       on it is gone. Take everything to win, or hold the most when round 11
-       ends.</p>
-  </div>
-</aside>
-
-<script type="module" src="/src/game/royale.view.mjs"></script>
 </body>
 </html>
