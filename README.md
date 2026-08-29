@@ -79,3 +79,56 @@ three. `Undo` walks back moves inside your own turn. The two seats are told
 apart by a light disc and a dark one rather than by colour alone; dead ground is
 struck out rather than recoloured; the ring about to fall is outlined in amber
 and the chip names the round it goes.
+
+## Is there an obvious best line?
+
+`node tools/strategies.mjs 60`, `node tools/interest.mjs 60`, `node tools/slop.mjs 40`.
+
+Six honestly different plans, round robin, seats swapped (row's win rate vs column):
+
+| | balanced | rookrush | nearest | cautious | hunter | turtle | overall |
+|---|---|---|---|---|---|---|---|
+| balanced | — | 59% | 91% | 52% | 72% | 56% | **66%** |
+| cautious | 48% | 73% | 93% | — | 63% | 57% | **67%** |
+| turtle | 44% | 68% | 47% | 43% | 48% | — | 50% |
+| hunter | 28% | 57% | 63% | 38% | — | 52% | 48% |
+| rookrush | 41% | — | 78% | 28% | 43% | 33% | 44% |
+| nearest | 9% | 22% | — | 7% | 37% | 53% | 25% |
+
+No dominant strategy. The top two are tied and split their own matchup 52/48.
+Committing to rooks only is a losing plan (44%), and so is ignoring the chests
+(hunter, 48%). The one clear loser is `nearest` at 25% — taking whichever chest
+is closest rather than weighing what it is. So chest *choice* is the strategic
+load, not chest *greed*.
+
+Two other things that would have made it obvious and did not:
+
+- **First-player advantage: none.** Seat 1 50%, seat 2 45%, draws 5%.
+- **The opening is not scripted.** 47 distinct opening turns across 60 games;
+  the most common was played 5% of the time.
+
+The evaluator scores 78% of positions as having a runner-up within a pawn of the
+best move, which reads like the moves do not matter. They do — that is the
+evaluator's resolution, not the game's. A bot that picks at random from the moves
+this eval calls near-equal loses to one that picks the best:
+
+| slack | sharp play wins |
+|---|---|
+| within 0.5 pawn | 65% |
+| within 1 pawn | 85% |
+| within 2 pawns | 70% |
+| within 4 pawns | 96% |
+
+(n=40 a row, so read the level and not the ordering.) Sloppy play loses heavily
+at every slack, so there is real content in moves this eval cannot separate.
+
+**Correction to the tuning note above.** At one move a turn, fearing the collapse
+lost badly and the safety weight wanted to be near zero. At the locked three
+moves a turn that reverses — `cautious`, with the safety weight at 0.9, is tied
+for the best plan in the table. The extra moves are what buy you the option to
+play safe. The earlier line, that the ring is a clock to spend rather than a
+threat to flee, is true at one move a turn and false at three.
+
+All of this is depth-2 bots with a coarse evaluator. It rules out a crude
+dominant line. It cannot rule out something a person would find, and no person
+has played this yet.

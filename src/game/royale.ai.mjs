@@ -11,7 +11,16 @@ export function mulberry32(a) {
 
 export function evaluate(s, me, o = {}) {
   const wChest = o.wChest ?? 2, wSafe = o.wSafe ?? 0.15;
+  const wAggro = o.wAggro ?? 0, wCentre = o.wCentre ?? 0;
+  const only = o.only ?? null;        // chase only this chest type
+  const flat = o.flat ?? false;       // treat every chest as equally valuable
   const c = s.cfg;
+  const mid = (c.size - 1) / 2;
+  const enemy = [];
+  for (let i = 0; i < s.board.length; i++) {
+    const p = s.board[i];
+    if (p && p.c !== me) enemy.push(i);
+  }
   const chestList = [];
   for (let i = 0; i < s.chests.length; i++) if (s.chests[i]) chestList.push(i);
 
@@ -33,14 +42,29 @@ export function evaluate(s, me, o = {}) {
       const x = ux(c, i), y = uy(c, i), f = forward(p.c);
       let best = 0;
       for (const ci of chestList) {
+        if (only && s.chests[ci] !== only) continue;
         const need = (uy(c, ci) - y) * f;
         if (need < 0) continue;                                  // never goes back
         const steps = Math.ceil(Math.max(Math.abs(ux(c, ci) - x), need) / c.runnerStep);
         if (steps > lifespan(s, ringOf(s, ci))) continue;         // chest dies first
-        const v = (VALUE[s.chests[ci]] - VALUE.r) * 10 * Math.pow(0.82, steps);
+        const worth = flat ? 40 : (VALUE[s.chests[ci]] - VALUE.r) * 10;
+        const v = worth * Math.pow(0.82, steps);
         if (v > best) best = v;
       }
       score += sign * best * 0.5 * wChest;
+    }
+
+    if (wCentre) {
+      const d = Math.max(Math.abs(ux(c, i) - mid), Math.abs(uy(c, i) - mid));
+      score -= sign * d * wCentre;
+    }
+    if (wAggro && enemy.length) {
+      let near = Infinity;
+      for (const ei of enemy) {
+        const d = Math.max(Math.abs(ux(c, ei) - ux(c, i)), Math.abs(uy(c, ei) - uy(c, i)));
+        if (d < near) near = d;
+      }
+      score -= sign * near * wAggro;
     }
   }
   return score;
