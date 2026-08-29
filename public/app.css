@@ -171,7 +171,7 @@ h1 {
   color: var(--dim);
 }
 .tray div { display: flex; align-items: baseline; gap: 9px; }
-.tray span:first-child { width: 4.4em; flex: none; }
+.tray span:first-child { width: 6.4em; flex: none; }
 .tray .won { font-size: 19px; letter-spacing: 3px; text-transform: none; }
 .tray .won { display: inline-flex; gap: 5px; }
 .tray .won i {

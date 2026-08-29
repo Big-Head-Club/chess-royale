@@ -164,7 +164,9 @@ createServer(async (req, res) => {
     const data = await readFile(file);
     res.writeHead(200, {
       'content-type': TYPES[extname(file)] ?? 'application/octet-stream',
-      'cache-control': p.endsWith('.json') ? 'no-store' : 'public, max-age=60',
+      // Revalidate rather than cache: a stale module after a deploy is a worse
+      // problem than the request it saves, and the whole game is a few kilobytes.
+      'cache-control': 'no-cache',
     });
     res.end(data);
   } catch (err) {

@@ -25,7 +25,8 @@ async function boot() {
   draw();
   if (done) return finish(done, true);
   el('say').innerHTML = 'Walk a runner onto a chest to take it. A runner that '
-    + 'takes one stops being a runner, so <b>four chests is the ceiling</b>.';
+    + 'takes one stops being a runner, so <b>four chests is the ceiling</b> — and '
+    + 'a piece caught on a falling ring takes its points with it.';
 }
 
 function load() {
@@ -68,8 +69,10 @@ function tap(i) {
     if (state.over) finish(record());
     return;
   }
+  // Any of your pieces, not just runners. A promoted piece still has to walk
+  // off a ring that is about to fall — it takes its points down with it.
   const p = state.board[i];
-  sel = p && p.t === 'r' && moves(state).some((m) => m.from === i) ? i : null;
+  sel = p && moves(state).some((m) => m.from === i) ? i : null;
   draw();
 }
 
