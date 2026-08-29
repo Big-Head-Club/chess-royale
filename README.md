@@ -67,3 +67,15 @@ Tuning note from `tools/sweep.mjs`: every configuration that ignored chests
 finished in the bottom four of a sixteen-way round robin, and *fearing* the
 collapse loses — the best safety weight is near zero. The ring is a clock to
 spend, not a threat to flee.
+
+## Playing it
+
+```
+node server.js     # http://localhost:4173
+```
+
+Tap a runner, tap a green dot. Three moves a turn, then the opponent takes
+three. `Undo` walks back moves inside your own turn. The two seats are told
+apart by a light disc and a dark one rather than by colour alone; dead ground is
+struck out rather than recoloured; the ring about to fall is outlined in amber
+and the chip names the round it goes.
