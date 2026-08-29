@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
-    "test": "node test/smoke.mjs && node test/daily.test.mjs",
+    "test": "node test/smoke.mjs && node test/daily.test.mjs && node test/store.test.mjs",
     "bake": "node tools/bake-dailies.mjs 400"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
   }
 }

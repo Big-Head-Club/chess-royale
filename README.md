@@ -10,15 +10,23 @@ Three modes:
   is the ceiling and which four is the puzzle. Par is proved optimal before a
   puzzle ships.
 - **Play a friend** — make a room, send the link. Two seats, three moves a turn.
-  Server-authoritative over SSE, no dependencies.
+  Server-authoritative over SSE; rooms live in Postgres, so a redeploy does not
+  drop a game in progress.
 - **Play the machine** — the same game against the bot the balance sims were
   built on.
 
 ```
 npm start      # http://localhost:4173
-npm test
+npm test       # add TEST_DATABASE_URL=... to also exercise the Postgres store
 npm run bake   # regenerate and re-prove the daily puzzles
 ```
+
+Rooms go to Postgres when `DATABASE_URL` is set and to memory otherwise, so
+local play and the tests need no database. Every write runs inside
+`SELECT ... FOR UPDATE`, because a move is a read-validate-apply-write cycle and
+two arriving together would otherwise both read the same state and lose one.
+Change notifications ride `LISTEN/NOTIFY`, so a move applied by one instance
+still reaches browsers streaming from another.
 
 `src/game/royale.rules.mjs` is pure — no DOM, no clock, no `Math.random`. That
 purity is why the multiplayer server can re-run every move a client claims, and
