@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { unpack, bound, naiveCeiling, greedy, scoreOf, POINTS, RUNNERS } from '../src/game/daily.mjs';
+import { unpack, bound, naiveCeiling, greedy, scoreOf, POINTS, BAG, RUNNERS } from '../src/game/daily.mjs';
 import { moves, apply } from '../src/game/royale.rules.mjs';
 
 let rows;
@@ -8,6 +8,9 @@ try { rows = JSON.parse(readFileSync(new URL('../public/dailies.json', import.me
 catch { console.log('daily tests skipped — run `npm run bake` first'); process.exit(0); }
 
 assert.ok(rows.length >= 30, `only ${rows.length} days baked`);
+
+const CEILING = BAG.map((t) => POINTS[t]).sort((a, b) => b - a)
+  .slice(0, RUNNERS).reduce((a, b) => a + b, 0);
 
 for (const row of rows) {
   const s = unpack(row);
@@ -21,7 +24,9 @@ for (const row of rows) {
   assert.ok(row.par < naiveCeiling(s),
     `day ${row.d}: par ${row.par} equals the naive top-four total — the rings cost nothing`);
   // Four chests is the hard ceiling: a runner that takes one stops being one.
-  assert.ok(row.par <= Object.values(POINTS).sort((a, b) => b - a).slice(0, RUNNERS).reduce((a, b) => a + b, 0));
+  // The ceiling comes from the BAG, which holds two rooks, not from the set of
+  // distinct piece values.
+  assert.ok(row.par <= CEILING, `day ${row.d}: par ${row.par} above the ${CEILING} ceiling`);
   // Walking to the nearest chest must not be enough.
   assert.ok(greedy(s) <= row.par - 3, `day ${row.d}: nearest-chest scores ${greedy(s)} against par ${row.par}`);
 }
