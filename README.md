@@ -1,10 +1,28 @@
 # CHESS ROYALE
 
-A shrinking-board chess variant. Two seats, no king, no check. Runners cross an
-expiring board to reach face-up chests that turn them into real pieces.
+Chess on a board that falls away underneath you. No king, no check. Runners
+cross an expiring board to reach face-up chests that turn them into real pieces.
 
-`src/game/royale.rules.mjs` is pure — no DOM, no clock, no `Math.random`.
-Everything else is measurement.
+Three modes:
+
+- **Today's puzzle** — one seat, four runners, seven chests worth different
+  points, one attempt. A runner that takes a chest stops being a runner, so four
+  is the ceiling and which four is the puzzle. Par is proved optimal before a
+  puzzle ships.
+- **Play a friend** — make a room, send the link. Two seats, three moves a turn.
+  Server-authoritative over SSE, no dependencies.
+- **Play the machine** — the same game against the bot the balance sims were
+  built on.
+
+```
+npm start      # http://localhost:4173
+npm test
+npm run bake   # regenerate and re-prove the daily puzzles
+```
+
+`src/game/royale.rules.mjs` is pure — no DOM, no clock, no `Math.random`. That
+purity is why the multiplayer server can re-run every move a client claims, and
+why the daily's par can be proved. Everything in `tools/` is measurement.
 
 ## Locked shape
 
