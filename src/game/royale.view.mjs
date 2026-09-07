@@ -8,7 +8,8 @@ const el = (id) => document.getElementById(id);
 const boardEl = el('board');
 const bot = competent(TUNED);
 
-let cfg, state, turnStart, history, sel, lastMove, thinking, rng;
+let cfg, state, turnStart, history, sel, lastMove, thinking, rng, startedAt;
+const track = (n, p) => window.tally && tally(n, p);
 
 function reset() {
   cfg = config();
@@ -19,6 +20,8 @@ function reset() {
   lastMove = null;
   thinking = false;
   rng = mulberry32((Math.random() * 1e9) | 0);
+  startedAt = Date.now();
+  track('start', { mode: 'bot' });
   el('over').hidden = true;
   draw();
 }
@@ -134,6 +137,8 @@ function flash(msg) {
 function finish() {
   const o = state.over;
   const w = o.winner;
+  track(w === YOU ? 'win' : w === FOE ? 'lose' : 'draw',
+    { mode: 'bot', seconds: Math.round((Date.now() - startedAt) / 1000), score: material(state, YOU) });
   el('over-h').textContent = w === YOU ? 'You win' : w === FOE ? 'You lose' : 'Draw';
   el('over-p').textContent = o.reason === 'wiped'
     ? (w === YOU ? 'You took everything they had.' : w === FOE ? 'They took everything you had.' : 'Both sides were wiped out.')

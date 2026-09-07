@@ -8,6 +8,8 @@ const cfg = config();
 let seat = 0, code = null, token = null, state = null, sel = null, last = null;
 let pending = [];                 // my moves this turn, so Undo has something to undo
 let stream = null;
+let startedAt = 0, reported = false;   // one start / one result per game, this seat
+const track = (n, p) => window.tally && tally(n, p);
 
 const post = async (path, body) => {
   const r = await fetch(path, {
@@ -25,6 +27,8 @@ function adopt(wire) {
   last = wire.last ?? last;
   sel = null;
   if (state.turn !== seat) pending = [];
+  if (state.seats?.[1] && !startedAt) { startedAt = Date.now(); track('start', { mode: 'versus' }); }
+  if (!state.over && reported) { reported = false; startedAt = Date.now(); track('start', { mode: 'versus' }); }  // rematch
   draw();
 }
 
@@ -40,6 +44,7 @@ async function make() {
     const j = await post('/api/room');
     ({ code, seat, token } = j);
     history.replaceState(null, '', `/versus?r=${code}`);
+    track('room_created');
     enter();
   } catch (err) { el('lobby-say').textContent = err.message; }
 }
@@ -49,6 +54,7 @@ async function join(c) {
     const j = await post(`/api/room/${c}/join`);
     code = c; seat = j.seat; token = j.token;
     history.replaceState(null, '', `/versus?r=${code}`);
+    track('room_joined');
     enter();
   } catch (err) { el('lobby-say').textContent = err.message; }
 }
@@ -93,6 +99,11 @@ function draw() {
 function over() {
   const o = state.over;
   const win = o.winner;
+  if (!reported) {
+    reported = true;
+    track(win === null ? 'draw' : win === seat ? 'win' : 'lose',
+      { mode: 'versus', seconds: Math.round((Date.now() - startedAt) / 1000), score: state.material?.[seat] });
+  }
   el('over-h').textContent = win === null ? 'Draw' : win === seat ? 'You win' : 'You lose';
   el('over-p').textContent = o.reason === 'wiped'
     ? 'Everything on one side was taken.'

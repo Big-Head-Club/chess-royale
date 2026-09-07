@@ -5,6 +5,7 @@ import { extname, join, normalize } from 'node:path';
 import { config, initial, moves, apply, material } from './src/game/royale.rules.mjs';
 import { startOfDay, dayNumber, POINTS } from './src/game/daily.mjs';
 import { openStore, newToken } from './src/server/store.mjs';
+import { createTally } from './src/server/tally/index.js';
 
 const ROOT = new URL('.', import.meta.url).pathname;
 const PORT = process.env.PORT ?? 4173;
@@ -22,6 +23,9 @@ try {
 
 const store = await openStore();
 console.log(`rooms: ${store.kind}`);
+
+// Analytics. Uses DATABASE_URL when present (Railway Postgres), else SQLite in TALLY_DIR.
+const tally = createTally({ dir: process.env.TALLY_DIR || './data', tz: 'UTC' });
 
 // ---- rooms -----------------------------------------------------------------
 
@@ -70,6 +74,7 @@ async function body(req) {
 }
 
 createServer(async (req, res) => {
+  if (await tally.handler(req, res)) return;
   const url = new URL(req.url, 'http://x');
   const path = decodeURIComponent(url.pathname);
 
@@ -181,4 +186,10 @@ createServer(async (req, res) => {
     res.writeHead(500, { 'content-type': 'text/plain' });
     res.end('server error');
   }
-}).listen(PORT, () => console.log(`chess royale  http://localhost:${PORT}`));
+}).listen(PORT, async () => {
+  console.log(`chess royale  http://localhost:${PORT}`);
+  await tally.ready;
+  const origin = process.env.PUBLIC_ORIGIN
+    || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : `http://localhost:${PORT}`);
+  console.log('dashboard:', tally.dashboardUrl(origin));
+});

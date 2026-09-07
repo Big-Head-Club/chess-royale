@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node --disable-warning=ExperimentalWarning server.js",
     "test": "node test/smoke.mjs && node test/daily.test.mjs && node test/store.test.mjs",
     "bake": "node tools/bake-dailies.mjs 400"
   },

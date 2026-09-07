@@ -5,7 +5,8 @@ import { renderBoard, ringChip, pips, GLYPH, NAME } from './board.view.mjs';
 const el = (id) => document.getElementById(id);
 const boardEl = el('board');
 
-let meta, state, start, history, sel, last, flashTimer;
+let meta, state, start, history, sel, last, flashTimer, startedAt;
+const track = (n, p) => window.tally && tally(n, p);
 
 const KEY = (d) => `chess-royale-daily-${d}`;
 
@@ -24,6 +25,8 @@ async function boot() {
   const done = load();
   draw();
   if (done) return finish(done, true);
+  startedAt = Date.now();
+  track('start', { mode: 'daily', level: meta.day });
   el('say').innerHTML = 'Walk a runner onto a chest to take it. A runner that '
     + 'takes one stops being a runner, so <b>four chests is the ceiling</b> — and '
     + 'a piece caught on a falling ring takes its points with it.';
@@ -95,6 +98,8 @@ function record() {
 
 function finish(rec, restored = false) {
   const perfect = rec.score >= rec.par;
+  if (!restored) track(perfect ? 'win' : 'lose',
+    { level: rec.day, seconds: Math.round((Date.now() - startedAt) / 1000), score: rec.score });
   el('over-h').textContent = perfect ? 'Par' : `${rec.score} of ${rec.par}`;
   el('over-p').textContent = perfect
     ? 'Nobody could have done better on this board. That is the proved maximum.'
@@ -128,6 +133,7 @@ el('end').addEventListener('click', () => {
   if (state.over) finish(record());
 });
 el('copy').addEventListener('click', async () => {
+  track('share', { level: meta.day });
   try {
     await navigator.clipboard.writeText(el('share').textContent);
     el('copy').textContent = 'Copied';
