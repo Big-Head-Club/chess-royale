@@ -1,0 +1,18 @@
+{
+  "slug": "chess-royale",
+  "name": "CHESS ROYALE",
+  "designers": [
+    "mack"
+  ],
+  "started": "2026-08-29",
+  "tags": [
+    "Solo",
+    "Web",
+    "Grid"
+  ],
+  "family": "chess-royale",
+  "url": "https://chess-royale-production-8f47.up.railway.app",
+  "repo": "Big-Head-Club/chess-royale",
+  "state": "none",
+  "shell": "whale"
+}
