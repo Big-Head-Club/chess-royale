@@ -1,0 +1,42 @@
+{
+  "art": [
+    {
+      "what": "The house look, from the Zen pass on Hex Smash",
+      "who": "Dan Viau",
+      "url": "https://hexsmash.xyz"
+    }
+  ],
+  "type": [
+    {
+      "what": "Space Grotesk",
+      "who": "Florian Karsten",
+      "url": "https://fonts.google.com/specimen/Space+Grotesk",
+      "licence": "OFL"
+    }
+  ],
+  "code": [
+    {
+      "what": "tally, the analytics",
+      "who": "Dan Viau",
+      "url": "https://github.com/Big-Head-Club/tally",
+      "licence": "MIT"
+    },
+    {
+      "what": "node-postgres",
+      "who": "Brian Carlson and contributors",
+      "url": "https://node-postgres.com/",
+      "licence": "MIT"
+    },
+    {
+      "what": "Claude Code",
+      "who": "Anthropic",
+      "url": "https://claude.com/claude-code"
+    }
+  ],
+  "people": [
+    {
+      "what": "Design and direction",
+      "who": "Mack Flavelle"
+    }
+  ]
+}
