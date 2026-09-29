@@ -8,6 +8,16 @@ const boardEl = el('board');
 let meta, state, start, history, sel, last, flashTimer, startedAt;
 const track = (n, p) => window.tally && tally(n, p);
 
+// Qualified gameplay measurement. measure() is a per-document singleton; the
+// guards keep gameplay alive when the SDK fails to load. resume() inside
+// gadAct recovers the playable state if the deferred SDK lands mid-puzzle.
+const GAD = () => window.GameADay?.measure?.({ gameId: 'chess-royale' });
+let gadPlaying = false;
+GAD();
+const gadPlay = () => { gadPlaying = true; GAD()?.resume(); };
+const gadStop = () => { gadPlaying = false; GAD()?.pause(); };
+const gadAct = (e) => { const m = GAD(); if (m && gadPlaying) { m.resume(); m.action(e); } };
+
 const KEY = (d) => `chess-royale-daily-${d}`;
 
 async function boot() {
@@ -26,6 +36,7 @@ async function boot() {
   draw();
   if (done) return finish(done, true);
   startedAt = Date.now();
+  gadPlay();
   track('start', { mode: 'daily', level: meta.day });
   el('say').innerHTML = 'Walk a runner onto a chest to take it. A runner that '
     + 'takes one stops being a runner, so <b>four chests is the ceiling</b> — and '
@@ -66,6 +77,7 @@ function tap(i) {
     history.push(state);
     const chest = state.chests[mv.to];
     state = apply(state, mv);
+    gadAct();
     last = mv; sel = null;
     if (chest) flash(`Took the ${NAME[chest]} — ${POINTS[chest]} points.`);
     draw();
@@ -113,6 +125,7 @@ function finish(rec, restored = false) {
 
   const next = new Date(meta.nextAt);
   el('next').textContent = `Next puzzle ${next.toLocaleString(undefined, { month: 'short', day: 'numeric' })}.`;
+  gadStop();
   el('over').hidden = false;
 }
 
@@ -120,16 +133,16 @@ boardEl.addEventListener('click', (e) => {
   const c = e.target.closest('.cell');
   if (c) tap(Number(c.dataset.i));
 });
-el('undo').addEventListener('click', () => {
+el('undo').addEventListener('click', (e) => {
   if (!history.length || state.over) return;
-  state = history.pop(); sel = null; draw();
+  state = history.pop(); sel = null; draw(); gadAct(e);
 });
-el('end').addEventListener('click', () => {
+el('end').addEventListener('click', (e) => {
   if (state.over) return;
   history.push(state);
   const round = state.round;
   while (state.round === round && !state.over) state = apply(state, null);
-  sel = null; draw();
+  sel = null; draw(); gadAct(e);
   if (state.over) finish(record());
 });
 el('copy').addEventListener('click', async () => {

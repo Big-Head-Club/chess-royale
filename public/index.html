@@ -7,6 +7,7 @@
 <title>Chess Royale</title>
 <meta name="description" content="Chess on a board that falls away underneath you. Runners cross an expiring board to reach chests that turn them into real pieces.">
 <link rel="stylesheet" href="/public/app.css">
+<script defer src="https://gameaday.xyz/gameaday.js"></script>
 </head>
 <body>
 <main class="stage menu">
@@ -34,6 +35,11 @@
      schedule and anything standing on it is gone — pieces you have already
      earned included.</p>
 </main>
+<script>
+// Arrival only — the menu is not playable; each mode page resumes on its own.
+const gadInit = () => { try { window.GameADay && GameADay.measure({ gameId: "chess-royale" }) } catch (e) {} }
+window.GameADay ? gadInit() : addEventListener("load", gadInit, { once: true })
+</script>
 <script defer src="/t.js"></script>
 <script defer src="https://hundred-carts-production.up.railway.app/credits.js" data-credits-game="chess-royale"></script>
 <script defer src="https://bhc-arcade.fly.dev/t.js"></script>

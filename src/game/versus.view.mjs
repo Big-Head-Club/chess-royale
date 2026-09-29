@@ -11,6 +11,16 @@ let stream = null;
 let startedAt = 0, reported = false;   // one start / one result per game, this seat
 const track = (n, p) => window.tally && tally(n, p);
 
+// Qualified gameplay measurement. measure() is a per-document singleton; the
+// guards keep gameplay alive when the SDK fails to load. Moves are counted
+// once the server accepts them, and the opponent's moves never count.
+const GAD = () => window.GameADay?.measure?.({ gameId: 'chess-royale' });
+let gadPlaying = false;
+GAD();
+const gadPlay = () => { gadPlaying = true; GAD()?.resume(); };
+const gadStop = () => { gadPlaying = false; GAD()?.pause(); };
+const gadAct = (e) => { const m = GAD(); if (m && gadPlaying) { m.resume(); m.action(e); } };
+
 const post = async (path, body) => {
   const r = await fetch(path, {
     method: 'POST', headers: { 'content-type': 'application/json' },
@@ -28,7 +38,7 @@ function adopt(wire) {
   sel = null;
   if (state.turn !== seat) pending = [];
   if (state.seats?.[1] && !startedAt) { startedAt = Date.now(); track('start', { mode: 'versus' }); }
-  if (!state.over && reported) { reported = false; startedAt = Date.now(); track('start', { mode: 'versus' }); }  // rematch
+  if (!state.over && reported) { reported = false; startedAt = Date.now(); gadPlay(); track('start', { mode: 'versus' }); }  // rematch
   draw();
 }
 
@@ -62,6 +72,7 @@ async function join(c) {
 function enter() {
   el('lobby').hidden = true;
   for (const id of ['chips', 'board', 'tray', 'acts']) el(id).hidden = false;
+  gadPlay();
   connect();
 }
 
@@ -109,10 +120,14 @@ function over() {
     ? 'Everything on one side was taken.'
     : `Round ${cfg.lastRound} ended. Material ${state.material?.join(' to ')}.`;
   el('over').hidden = false;
+  gadStop();
 }
 
 async function send(from, to) {
-  try { await post(`/api/room/${code}/move`, { token, from, to }); }
+  try {
+    await post(`/api/room/${code}/move`, { token, from, to });
+    gadAct();                 // counted only once the server has accepted it
+  }
   catch (err) { el('say').textContent = err.message; }
 }
 

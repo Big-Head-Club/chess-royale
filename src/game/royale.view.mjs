@@ -11,6 +11,16 @@ const bot = competent(TUNED);
 let cfg, state, turnStart, history, sel, lastMove, thinking, rng, startedAt;
 const track = (n, p) => window.tally && tally(n, p);
 
+// Qualified gameplay measurement. measure() is a per-document singleton; the
+// guards keep gameplay alive when the SDK fails to load. The bot's own moves
+// are never counted — only the human's accepted inputs below.
+const GAD = () => window.GameADay?.measure?.({ gameId: 'chess-royale' });
+let gadPlaying = false;
+GAD();
+const gadPlay = () => { gadPlaying = true; GAD()?.resume(); };
+const gadStop = () => { gadPlaying = false; GAD()?.pause(); };
+const gadAct = (e) => { const m = GAD(); if (m && gadPlaying) { m.resume(); m.action(e); } };
+
 function reset() {
   cfg = config();
   state = initial(cfg);
@@ -21,6 +31,7 @@ function reset() {
   thinking = false;
   rng = mulberry32((Math.random() * 1e9) | 0);
   startedAt = Date.now();
+  gadPlay();
   track('start', { mode: 'bot' });
   el('over').hidden = true;
   draw();
@@ -86,6 +97,7 @@ function commit(mv) {
   const took = state.board[mv.to];
   const chest = state.chests[mv.to];
   state = apply(state, mv);
+  gadAct();
   lastMove = mv;
   sel = null;
   if (chest && took === null) flash(`Popped a chest — that runner is a ${NAME[chest]}.`);
@@ -96,6 +108,7 @@ function endTurn() {
   if (thinking || state.turn !== YOU) return;
   history.push(state);
   while (state.turn === YOU && !state.over) state = apply(state, null);
+  gadAct();
   sel = null;
   after();
 }
@@ -144,17 +157,18 @@ function finish() {
     ? (w === YOU ? 'You took everything they had.' : w === FOE ? 'They took everything you had.' : 'Both sides were wiped out.')
     : `Round 11 ended. Material ${material(state, YOU)} to ${material(state, FOE)}.`;
   el('over').hidden = false;
+  gadStop();
 }
 
 boardEl.addEventListener('click', (e) => {
   const c = e.target.closest('.cell');
   if (c) tap(Number(c.dataset.i));
 });
-el('undo').addEventListener('click', () => {
+el('undo').addEventListener('click', (e) => {
   if (!history.length || thinking) return;
   state = history.pop();
   sel = null;
-  draw();
+  draw(); gadAct(e);
 });
 el('end').addEventListener('click', endTurn);
 el('again').addEventListener('click', reset);
