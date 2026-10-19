@@ -18,7 +18,7 @@ body {
   background: var(--ground);
   color: var(--ink);
   font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  min-height: 100dvh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +31,7 @@ body {
 .stage {
   width: min(100%, 430px);
   aspect-ratio: 10 / 16;
-  max-height: calc(100dvh - 32px);
+  max-height: calc(100svh - 32px);
   background: var(--panel);
   border: 1.5px solid var(--edge);
   border-radius: 14px;
